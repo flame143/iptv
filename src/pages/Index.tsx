@@ -5,7 +5,7 @@ import { LivePlayer } from '@/components/LivePlayer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { type Channel } from '@/lib/channels';
 import { cn } from '@/lib/utils';
-import { Tv, Search, Shield, User, Loader2, ChevronDown, Monitor, LogIn } from 'lucide-react';
+import { Tv, Search, User, Loader2, ChevronDown, Monitor } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
@@ -80,13 +80,7 @@ const Index = () => {
     return result;
   }, [allChannels, selectedCategory, searchQuery, dbChannels]);
 
-  const handleAdminClick = () => {
-    if (user) {
-      navigate('/admin');
-    } else {
-      navigate('/auth');
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -205,17 +199,7 @@ const Index = () => {
               </div>
             </ScrollArea>
 
-            {/* Footer Branding with Login/Admin Button */}
-            <div 
-              onClick={handleAdminClick}
-              className="p-4 bg-[#0a0b0e] border-t border-white/5 flex items-center justify-between cursor-pointer group hover:bg-zinc-900 transition-colors shrink-0"
-            >
-              <div className="flex items-center gap-2">
-                 <Shield className="w-4 h-4 text-zinc-700 group-hover:text-[#00FF00] transition-colors" />
-                 <span className="text-[10px] font-black text-zinc-700 group-hover:text-[#00FF00] uppercase tracking-widest transition-colors">Admin Dashboard</span>
-              </div>
-              <LogIn className="w-4 h-4 text-zinc-700 group-hover:text-[#00FF00] transition-colors" />
-            </div>
+
           </aside>
         </div>
 

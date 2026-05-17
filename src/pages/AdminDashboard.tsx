@@ -160,15 +160,8 @@ export default function AdminDashboard() {
 
   // Menu Configuration
   const adminPages = [
-    { id: 'messages', title: 'User Messages', icon: Mail, desc: 'Read requests, reports, and feedbacks', color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
-    { id: 'channels', title: 'Manage Channels', icon: Tv, desc: 'Add or edit TV, Movies, and Anime', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    { id: 'analytics', title: 'Full Analytics', icon: BarChart3, desc: 'Detailed views, visitors, and top pages', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    { id: 'iptv', title: 'IPTV Settings', icon: Wifi, desc: 'Configure M3U playlists and sources', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-    { id: 'notifications', title: 'Notifications', icon: Bell, desc: 'Send announcements to all users', color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/20' },
-    { id: 'app-update', title: 'App Updater', icon: Rocket, desc: 'Manage APK versions and update popups', color: 'text-cyan-500', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' }, // <--- BAGONG MENU ITEM
-    { id: 'settings', title: 'Welcome Popup', icon: MessageSquare, desc: 'Edit the initial welcome dialog', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-    { id: 'page-popups', title: 'Page Popups', icon: ExternalLink, desc: 'Manage redirect links and ads', color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
- { id: 'site-settings', title: 'Site Config', icon: Globe, desc: 'Maintenance, SEO, and Announcements', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+    { id: 'channels', title: 'Manage Channels', icon: Tv, desc: 'Add, update, or edit TV channels and stream parameters', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+    { id: 'iptv', title: 'IPTV Settings', icon: Wifi, desc: 'Configure M3U playlists, sources, and playlist synchronizations', color: 'text-[#00FF00]', bg: 'bg-[#00FF00]/10', border: 'border-[#00FF00]/20' },
   ];
 
   if (loading) {
@@ -177,10 +170,9 @@ export default function AdminDashboard() {
         <Navbar />
         <div className="container mx-auto px-4 pt-24 pb-8">
           <Skeleton className="h-10 w-64 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            {[...Array(4)].map((_, i) => ( <Skeleton key={i} className="h-32" /> ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
+            {[...Array(2)].map((_, i) => ( <Skeleton key={i} className="h-48 rounded-2xl" /> ))}
           </div>
-          <Skeleton className="h-80 mb-8" />
         </div>
       </div>
     );
@@ -191,17 +183,17 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 pt-24 pb-12">
+      <div className="container mx-auto px-4 pt-28 pb-12">
         
         {/* Dynamic Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-12 max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-primary/10 rounded-xl">
               <BarChart3 className="h-7 w-7 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Admin Center</h1>
-              <p className="text-sm text-muted-foreground">Manage your streaming platform</p>
+              <p className="text-sm text-muted-foreground">Manage your live TV streaming platform</p>
             </div>
           </div>
           
@@ -214,63 +206,20 @@ export default function AdminDashboard() {
 
         {activeView === 'menu' ? (
           <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
-            {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-card border-border shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between space-y-0 pb-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Views</p>
-                    <Eye className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold">{totals.totalViews.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-card border-border shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between space-y-0 pb-2">
-                    <p className="text-sm font-medium text-muted-foreground">Today's Views</p>
-                    <Calendar className="h-4 w-4 text-green-500" />
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold">{totals.todayViews.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-card border-border shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between space-y-0 pb-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Visitors</p>
-                    <Users className="h-4 w-4 text-blue-500" />
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold">{totals.uniqueVisitors.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-card border-border shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between space-y-0 pb-2">
-                    <p className="text-sm font-medium text-muted-foreground">Weekly Visitors</p>
-                    <TrendingUp className="h-4 w-4 text-purple-500" />
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold">{totals.weeklyVisitors.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Grid Box Menu */}
             <div>
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-muted-foreground" /> Main Navigation
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                 {adminPages.map((page) => (
                   <button
                     key={page.id}
                     onClick={() => setActiveView(page.id)}
-                    className={`flex flex-col text-left p-5 rounded-2xl border ${page.border} bg-card hover:shadow-md hover:border-primary/50 transition-all duration-200 group relative overflow-hidden`}
+                    className={`flex flex-col text-left p-6 rounded-2xl border ${page.border} bg-card hover:shadow-md hover:border-primary/50 transition-all duration-200 group relative overflow-hidden`}
                   >
-                    <div className={`p-3 rounded-xl ${page.bg} ${page.color} w-fit mb-4 group-hover:scale-110 transition-transform duration-200`}>
-                      <page.icon className="w-6 h-6" />
+                    <div className={`p-4 rounded-xl ${page.bg} ${page.color} w-fit mb-4 group-hover:scale-110 transition-transform duration-200`}>
+                      <page.icon className="w-8 h-8" />
                     </div>
-                    <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">{page.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{page.desc}</p>
+                    <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">{page.title}</h3>
+                    <p className="text-sm text-muted-foreground">{page.desc}</p>
                   </button>
                 ))}
               </div>
