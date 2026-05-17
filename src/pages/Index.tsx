@@ -150,7 +150,7 @@ const Index = () => {
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           
           {/* PLAYER ZONE (70%) */}
-          <div className="flex-1 p-4 md:p-6 flex flex-col items-center justify-center bg-[#050505] overflow-y-auto">
+          <div className="flex-1 p-4 md:p-6 flex flex-col items-center justify-start bg-[#050505] overflow-y-auto">
             {selectedChannel ? (
               <div className="w-full max-w-4xl flex flex-col gap-4 animate-in fade-in duration-500">
                 {/* Video Container */}
