@@ -28,14 +28,12 @@ import PlaylistPlayer from "./pages/PlaylistPlayer";
 
 import TempMail from "./pages/TempMail";
 import TextToSpeech from "./pages/TextToSpeech";
-import { BottomNav } from "./components/BottomNav";
 
 import CustomChannels from "./pages/CustomChannels";
 import { UpdatePrompt } from '@/components/UpdatePrompt';
 import { MaintenanceOverlay } from '@/components/MaintenanceOverlay';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { SEOManager } from '@/components/SEOManager';
-import { CommunityChat } from '@/components/CommunityChat';
 import { useState, useEffect } from "react";
 import { useLocation, BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -182,8 +180,6 @@ const App = () => {
 
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                  <BottomNav />
-                  <CommunityChat />
                 </div>
               </UserPreferencesProvider>
             </TooltipProvider>
