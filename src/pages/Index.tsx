@@ -135,6 +135,43 @@ const Index = () => {
              </div>
           </div>
 
+          {/* Now Playing Pill inside the Header */}
+          {selectedChannel && (
+            <div className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-2xl bg-zinc-900 border border-white/5 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2 mt-0.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+                <span className="text-[10px] font-black text-red-500 uppercase tracking-widest leading-none">Playing</span>
+              </div>
+              <span className="text-zinc-700 font-bold">•</span>
+              <span className="text-xs font-black text-white uppercase tracking-wider">{selectedChannel.name}</span>
+              <span className="text-zinc-700 font-bold">•</span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{selectedChannel.type}</span>
+              
+              <span className="text-zinc-700 font-bold">•</span>
+              <Button 
+                onClick={() => handleShare(selectedChannel)}
+                variant="ghost" 
+                className={cn(
+                  "rounded-lg h-7 px-2.5 text-[9px] font-black uppercase tracking-wider gap-1.5 transition-all p-0 hover:bg-white/5",
+                  copiedId === selectedChannel.id ? "text-[#00FF00]" : "text-zinc-400 hover:text-white"
+                )}
+              >
+                {copiedId === selectedChannel.id ? (
+                  <>
+                    <Check className="w-3 h-3" /> Copied
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-3 h-3" /> Share
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
           <div className="flex items-center gap-3 md:gap-6">
              <div 
                onClick={handleAdminClick}
@@ -150,77 +187,14 @@ const Index = () => {
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           
           {/* PLAYER ZONE (70%) */}
-          <div className="flex-1 p-4 md:p-6 flex flex-col items-center justify-start bg-[#050505] overflow-y-auto">
+          <div className="flex-1 p-4 md:p-8 flex items-center justify-center bg-[#050505] overflow-hidden">
             {selectedChannel ? (
-              <div className="w-full max-w-4xl flex flex-col gap-4 animate-in fade-in duration-500">
-                {/* Video Container */}
-                <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/5 relative group flex items-center justify-center shrink-0">
-                  <LivePlayer 
-                    key={selectedChannel.id} 
-                    channel={selectedChannel} 
-                    className="w-full h-full border-none rounded-none bg-transparent"
-                  />
-                </div>
-                
-                {/* Now Playing Info Bar */}
-                <div className="w-full bg-[#0d0e12] border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl shrink-0">
-                  <div className="flex items-center gap-3">
-                    {/* Channel Logo / Initial Fallback */}
-                    {selectedChannel.logo && !logoError[selectedChannel.id] ? (
-                      <img 
-                        src={selectedChannel.logo} 
-                        alt={selectedChannel.name}
-                        onError={() => setLogoError(prev => ({ ...prev, [selectedChannel.id]: true }))}
-                        className="w-10 h-10 rounded-xl object-contain bg-zinc-950 p-1 border border-white/10 shrink-0" 
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-[#00FF00]/10 text-[#00FF00] font-black text-xs flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,255,0,0.05)]">
-                        {getInitials(selectedChannel.name)}
-                      </div>
-                    )}
-                    
-                    <div>
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h2 className="text-base md:text-lg font-black text-white uppercase tracking-wide leading-none">{selectedChannel.name}</h2>
-                        
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 shrink-0">
-                          <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
-                          </span>
-                          <span className="text-[8px] font-black text-red-500 uppercase tracking-widest leading-none">Live Stream</span>
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-zinc-500 font-semibold tracking-wide flex items-center gap-2 flex-wrap">
-                        <span>Format: <span className="text-zinc-300 font-bold uppercase">{selectedChannel.type}</span></span>
-                        <span className="text-zinc-700">•</span>
-                        <span>Proxy: <span className={selectedChannel.useProxy ? "text-[#00FF00]" : "text-zinc-500"}>{selectedChannel.useProxy ? "Active Proxy" : "Direct"}</span></span>
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Share button */}
-                  <div className="flex items-center gap-3 shrink-0">
-                    <Button 
-                      onClick={() => handleShare(selectedChannel)}
-                      variant="outline" 
-                      className={cn(
-                        "rounded-xl h-10 px-4 text-[10px] font-black uppercase tracking-wider gap-2 border-white/10 bg-zinc-900/50 hover:bg-zinc-800 transition-all",
-                        copiedId === selectedChannel.id ? "text-[#00FF00] border-[#00FF00]/30" : "text-zinc-300 hover:text-white"
-                      )}
-                    >
-                      {copiedId === selectedChannel.id ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" /> Copied Stream!
-                        </>
-                      ) : (
-                        <>
-                          <Share2 className="w-3.5 h-3.5" /> Share Stream
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
+              <div className="w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/5 relative group flex items-center justify-center animate-in fade-in duration-500 shrink-0">
+                <LivePlayer 
+                  key={selectedChannel.id} 
+                  channel={selectedChannel} 
+                  className="w-full h-full border-none rounded-none bg-transparent"
+                />
               </div>
             ) : (
               <div className="flex flex-col items-center gap-6 animate-pulse">
