@@ -137,8 +137,6 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-
-
   const offlineText = {
     title: "Playback Error",
     message: "The stream could not be loaded. Please try again or choose another channel."
@@ -691,8 +689,6 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
 
   return (
     <>
-      {/* Loading spinner removed as per user request */}
-
       {isRefreshing && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-card/90 backdrop-blur-sm z-20">
           <RefreshCw className="w-10 h-10 text-primary animate-spin mb-3" />
@@ -728,7 +724,7 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
 
       <div 
         ref={containerRef} 
-        className="relative w-full h-full group"
+        className="absolute inset-0 w-full h-full group bg-black"
       >
         <video 
           ref={videoRef} 
@@ -786,7 +782,7 @@ export const LivePlayer = ({ channel, onProxyChange, className }: LivePlayerProp
   }
 
   return (
-    <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-card border border-border relative", className)}>
+    <div className={cn("relative flex aspect-video w-full rounded-xl overflow-hidden bg-card border border-border", className)}>
       <PlayerCore key={channel.id} channel={channel} onProxyChange={onProxyChange} />
     </div>
   );
