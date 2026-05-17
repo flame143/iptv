@@ -8,6 +8,7 @@ import shaka from 'shaka-player/dist/shaka-player.ui';
 import 'shaka-player/dist/controls.css';
 import { supabase } from '@/integrations/supabase/client';
 import { setupOrientationFullscreen } from '@/lib/capacitorFullscreen';
+import { cn } from '@/lib/utils';
 
 const badProxiesCache = new Map<string, number>(); 
 const PROXY_TIMEOUT_MS = 5 * 60 * 1000; 
@@ -112,6 +113,7 @@ const getYouTubeId = (url: string) => {
 interface LivePlayerProps {
   channel: Channel;
   onProxyChange?: (label: string) => void;
+  className?: string;
 }
 
 const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
@@ -763,11 +765,11 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
   );
 };
 
-export const LivePlayer = ({ channel, onProxyChange }: LivePlayerProps) => {
+export const LivePlayer = ({ channel, onProxyChange, className }: LivePlayerProps) => {
   if (channel.type === 'youtube') {
     const yt = getYouTubeId(channel.embedUrl || channel.manifestUri || '');
     return (
-      <div className="aspect-video w-full rounded-xl overflow-hidden bg-card border border-border">
+      <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-card border border-border", className)}>
         {yt ? (
           <YouTubePlayer videoId={yt.id} title={channel.name} isChannel={yt.type === 'channel'} />
         ) : (
@@ -784,10 +786,8 @@ export const LivePlayer = ({ channel, onProxyChange }: LivePlayerProps) => {
   }
 
   return (
-    <div>
-      <div className="aspect-video w-full rounded-xl overflow-hidden bg-card border border-border relative">
-        <PlayerCore key={channel.id} channel={channel} onProxyChange={onProxyChange} />
-      </div>
+    <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-card border border-border relative", className)}>
+      <PlayerCore key={channel.id} channel={channel} onProxyChange={onProxyChange} />
     </div>
   );
 };
