@@ -121,7 +121,7 @@ const WatchLive = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="h-[100dvh] bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -129,7 +129,7 @@ const WatchLive = () => {
 
   if (!channel) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="h-[100dvh] bg-background">
         <Navbar />
         <div className="pt-24 container mx-auto px-4 text-center">
           <h1 className="text-2xl font-bold mb-4">Channel not found</h1>
@@ -142,11 +142,11 @@ const WatchLive = () => {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
       <Navbar />
 
       {/* Main Page Scroll */}
-      <ScrollArea className="flex-1 pt-16">
+      <ScrollArea className="flex-1 min-h-0 pt-16">
         <main className="pb-12">
           <div className="container mx-auto px-4">
             {/* Back Button */}
