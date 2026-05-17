@@ -5,7 +5,7 @@ import { LivePlayer } from '@/components/LivePlayer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { type Channel } from '@/lib/channels';
 import { cn } from '@/lib/utils';
-import { Tv, Search, User, Loader2, ChevronDown, Monitor } from 'lucide-react';
+import { Tv, Search, Shield, User, Loader2, Monitor } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
@@ -13,7 +13,6 @@ const Index = () => {
   const { data: dbChannels, isLoading } = useChannels();
   
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [user, setUser] = useState<any>(null);
 
@@ -40,35 +39,11 @@ const Index = () => {
     return (dbChannels || []).map(toAppChannel);
   }, [dbChannels]);
 
-  // Set default selected channel on load
-  useEffect(() => {
-    if (allChannels.length && !selectedChannel) {
-      setSelectedChannel(allChannels[0]);
-    }
-  }, [allChannels, selectedChannel]);
 
-  // Compute unique dynamic categories from database channels
-  const categories = useMemo(() => {
-    const dbCats = (dbChannels || [])
-      .map(c => c.category)
-      .filter((cat): cat is string => !!cat && cat.trim().length > 0);
-    const uniqueCats = Array.from(new Set(dbCats));
-    const formattedCats = uniqueCats.map(cat => cat.charAt(0).toUpperCase() + cat.slice(1));
-    return formattedCats.sort();
-  }, [dbChannels]);
 
-  // Filter channels based on search and category
+  // Filter channels based on search
   const filteredChannels = useMemo(() => {
     let result = allChannels;
-
-    // Category Filtering
-    if (selectedCategory !== 'All') {
-      result = result.filter(c => {
-        const dbCh = (dbChannels || []).find(d => d.id === c.id);
-        const cat = dbCh?.category || 'general';
-        return cat.toLowerCase() === selectedCategory.toLowerCase();
-      });
-    }
 
     // Search Query Filtering
     if (searchQuery.trim().length > 0) {
@@ -78,10 +53,14 @@ const Index = () => {
     }
 
     return result;
-  }, [allChannels, selectedCategory, searchQuery, dbChannels]);
-
-
-
+  }, [allChannels, searchQuery]);
+  const handleAdminClick = () => {
+    if (user) {
+      navigate('/admin');
+    } else {
+      navigate('/auth');
+    }
+  };
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#030303] flex flex-col items-center justify-center gap-3">
@@ -144,20 +123,7 @@ const Index = () => {
 
           {/* CONTROL PANEL / SIDEBAR (30%) */}
           <aside className="w-full md:w-80 lg:w-96 h-full bg-[#121418] border-l border-white/5 flex flex-col shrink-0 overflow-hidden">
-            {/* Category Dropdown */}
-            <div className="p-4 border-b border-white/5">
-              <div className="relative">
-                <select 
-                  className="w-full bg-zinc-900 border-none text-white text-sm font-bold h-12 px-4 rounded-xl appearance-none cursor-pointer focus:ring-1 focus:ring-[#00FF00]/55 focus:outline-none"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="All">All Categories</option>
-                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-              </div>
-            </div>
+
 
             {/* Search Input */}
             <div className="p-4 border-b border-white/5">
