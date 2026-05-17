@@ -15,6 +15,7 @@ const Index = () => {
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [user, setUser] = useState<any>(null);
+  const [onlineCount, setOnlineCount] = useState<number>(33);
 
   // Check auth credentials
   useEffect(() => {
@@ -32,6 +33,20 @@ const Index = () => {
       checkAuth();
     });
     return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const sessionId = `index_user_${Math.random().toString(36).substring(2, 15)}`;
+    const channel = supabase.channel('online-users', { config: { presence: { key: sessionId } } });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      setOnlineCount(Math.max(1, Object.keys(state).length));
+    }).subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') await channel.track({ online_at: new Date().toISOString() });
+    });
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   // Map database channels to application Channel schema
@@ -78,22 +93,30 @@ const Index = () => {
 
         {/* HEADER */}
         <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-between border-b border-white/5 shrink-0 bg-[#0f0f0f]">
-          <div className="flex items-center gap-4">
-             <div className="w-8 h-8 rounded-lg bg-[#00FF00] shadow-[0_0_20px_rgba(0,255,0,0.4)] flex items-center justify-center">
-                <Tv className="w-5 h-5 text-black" />
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+                <Tv className="w-6 h-6 text-black" fill="black" />
              </div>
-             <h1 className="text-xl md:text-2xl font-black tracking-tighter text-white uppercase italic select-none">
-               Flame<span className="text-[#00FF00] not-italic">X</span> Space
-             </h1>
+             <span className="text-xl md:text-2xl font-black tracking-tighter text-white select-none">
+               TV<span className="text-orange-500">STREAMZ</span>
+             </span>
+             
+             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/5 flex">
+               <span className="relative flex h-2 w-2 mt-0.5">
+                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+               </span>
+               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">{onlineCount} Live</span>
+             </div>
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
              <div 
                onClick={handleAdminClick}
-               className="w-10 h-10 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-[#00FF00] transition-colors cursor-pointer group"
+               className="w-10 h-10 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-orange-500 transition-colors cursor-pointer group"
                title={user ? 'Admin Panel' : 'Login'}
              >
-                {user ? <Shield className="w-5 h-5 group-hover:text-[#00FF00]" /> : <User className="w-5 h-5 group-hover:text-[#00FF00]" />}
+                {user ? <Shield className="w-5 h-5 group-hover:text-orange-500" /> : <User className="w-5 h-5 group-hover:text-orange-500" />}
              </div>
           </div>
         </header>

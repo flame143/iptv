@@ -89,11 +89,11 @@ export const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-[#00FF00] flex items-center justify-center shadow-[0_0_15px_rgba(0,255,0,0.3)] transition-transform group-hover:scale-110">
+              <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-transform group-hover:scale-110">
                 <Tv className="w-6 h-6 text-black" fill="black" />
               </div>
               <span className="text-2xl font-black tracking-tighter text-foreground hidden sm:block">
-                FLAME<span className="text-[#00FF00]">X</span>SPACE
+                TV<span className="text-orange-500">STREAMZ</span>
               </span>
             </Link>
             
@@ -116,7 +116,7 @@ export const Navbar = () => {
                   to={item.path} 
                   className={`flex items-center gap-2 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
                     isActive 
-                      ? 'bg-[#00FF00] text-black shadow-lg shadow-[#00FF00]/20' 
+                      ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' 
                       : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
                   }`}
                 >
@@ -161,7 +161,7 @@ export const Navbar = () => {
                   <div className="mb-8">
                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4">Your Account</p>
                      {!isLoggedIn ? (
-                        <Button asChild className="w-full h-14 rounded-2xl bg-[#00FF00] hover:bg-[#00FF00]/80 text-black font-black uppercase tracking-widest gap-3">
+                        <Button asChild className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 text-black font-black uppercase tracking-widest gap-3">
                           <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                             <Shield className="w-5 h-5" />
                             Sign In / Register
@@ -169,7 +169,7 @@ export const Navbar = () => {
                         </Button>
                      ) : (
                         <div className="p-4 rounded-2xl bg-muted border border-border flex items-center gap-3">
-                           <div className="w-10 h-10 rounded-full bg-[#00FF00] flex items-center justify-center font-black text-black">A</div>
+                           <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center font-black text-black">A</div>
                            <div>
                               <p className="font-black text-sm uppercase tracking-tight">Active User</p>
                               <p className="text-[10px] text-zinc-500">Premium Member</p>
