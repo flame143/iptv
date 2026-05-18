@@ -45,6 +45,21 @@
 }
 
 @layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
   * {
     @apply border-border;
   }
@@ -52,6 +67,7 @@
   body {
     @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    position: fixed;
   }
 
   /* Custom scrollbar */
