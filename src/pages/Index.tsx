@@ -187,9 +187,9 @@ const Index = () => {
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           
           {/* PLAYER ZONE (70%) */}
-          <div className="flex-1 p-4 md:p-8 flex items-center justify-center bg-[#050505] overflow-hidden">
+          <div className="w-full md:flex-1 shrink-0 p-0 md:p-8 flex items-center justify-center bg-[#050505] overflow-hidden">
             {selectedChannel ? (
-              <div className="w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/5 relative group flex items-center justify-center animate-in fade-in duration-500 shrink-0">
+              <div className="w-full max-w-5xl aspect-video md:rounded-2xl overflow-hidden shadow-2xl bg-black border-y md:border border-white/5 relative group flex items-center justify-center animate-in fade-in duration-500 shrink-0">
                 <LivePlayer 
                   key={selectedChannel.id} 
                   channel={selectedChannel} 
@@ -197,7 +197,7 @@ const Index = () => {
                 />
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-6 animate-pulse">
+              <div className="flex flex-col items-center gap-6 animate-pulse py-12 md:py-0">
                 <div className="w-24 h-24 rounded-full bg-[#00FF00]/5 flex items-center justify-center shadow-[0_0_50px_rgba(0,255,0,0.1)]">
                    <Tv className="w-12 h-12 text-[#00FF00]" />
                 </div>
@@ -207,7 +207,7 @@ const Index = () => {
           </div>
 
           {/* CONTROL PANEL / SIDEBAR (30%) */}
-          <aside className="w-full md:w-80 lg:w-96 h-full bg-[#121418] border-l border-white/5 flex flex-col shrink-0 overflow-hidden">
+          <aside className="w-full md:w-80 lg:w-96 flex-1 md:flex-none md:h-full bg-[#121418] border-t md:border-t-0 md:border-l border-white/5 flex flex-col min-h-0 overflow-hidden">
 
 
             {/* Search Input */}
