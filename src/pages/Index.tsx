@@ -111,10 +111,10 @@ const Index = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-black text-white p-2 md:p-4 lg:p-6 overflow-hidden">
+    <div className="h-[100dvh] w-full bg-black text-white p-0 md:p-4 lg:p-6 overflow-hidden flex flex-col">
       
       {/* TUNEX MASTER CONTAINER */}
-      <div className="h-full w-full flex flex-col bg-[#0a0a0a] tunex-glow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-white/5 relative">
+      <div className="flex-1 w-full flex flex-col bg-[#0a0a0a] tunex-glow md:rounded-[2rem] overflow-hidden border-0 md:border border-white/5 relative">
 
         {/* HEADER */}
         <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-between border-b border-white/5 shrink-0 bg-[#0f0f0f]">
