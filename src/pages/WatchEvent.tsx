@@ -36,7 +36,7 @@ const WatchEvent = () => {
   const sourceUrl = eventSlug ? `${TVAPP_LINK_BASE}/${eventSlug}` : null;
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
       <Navbar />
       <main className="flex-1 pt-16 overflow-auto pb-12">
         <div className="container mx-auto px-4">
