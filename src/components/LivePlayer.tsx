@@ -53,11 +53,13 @@ const getProxyUrls = async (proxyType: string = 'cloudflare'): Promise<{ primary
   }
 };
 
-const buildProxiedUrl = (proxyBase: string, manifestUrl: string, userAgent?: string, referrer?: string): string => {
+const buildProxiedUrl = (proxyBase: string, manifestUrl: string, userAgent?: string, referrer?: string, exp?: string, sig?: string): string => {
   const url = new URL(proxyBase);
   url.searchParams.set('url', manifestUrl);
   if (userAgent) url.searchParams.set('ua', userAgent);
   if (referrer) url.searchParams.set('referer', referrer);
+  if (exp) url.searchParams.set('exp', exp);
+  if (sig) url.searchParams.set('sig', sig);
   return url.toString();
 };
 
@@ -133,6 +135,7 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
   const proxyLabelMapRef = useRef<Map<string, string>>(new Map());
   const shakaLoadingRef = useRef<boolean>(false);
   const currentBestProxyRef = useRef<string>('');
+  const streamTokenRef = useRef<{exp: string, sig: string}>({exp: '', sig: ''});
 
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -229,6 +232,18 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
           throw new Error('Stream URL could not be resolved or is empty.');
         }
 
+        // Fetch stream token for proxy security
+        try {
+          const { data } = await supabase.functions.invoke('generate-stream-token', {
+            body: { url: streamUrl }
+          });
+          if (data && data.sig) {
+            streamTokenRef.current = { exp: data.exp, sig: data.sig };
+          }
+        } catch (e) {
+          console.warn('[LivePlayer] Failed to get stream token', e);
+        }
+
         const defaultUA = "Dalvik/2.1.0 (Linux; U; Android 12; Pixel 6 Build/SD1A.210817.036)";
         const targetUA = channel.userAgent || defaultUA;
 
@@ -302,18 +317,19 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
             };
 
             try {
-              const testUrl = proxy === 'direct' ? streamUrl : buildProxiedUrl(proxy!, streamUrl, targetUA, channel.referrer);
+              const { exp, sig } = streamTokenRef.current;
+              const testUrl = proxy === 'direct' ? streamUrl : buildProxiedUrl(proxy!, streamUrl, targetUA, channel.referrer, exp, sig);
               let res: Response;
               try {
                 res = await tryFetch(testUrl);
                 if (!res.ok && proxy !== 'direct') {
-                  const cleanUrl = buildProxiedUrl(proxy!, streamUrl, targetUA, channel.referrer);
+                  const cleanUrl = buildProxiedUrl(proxy!, streamUrl, targetUA, channel.referrer, exp, sig);
                   const retryRes = await tryFetch(cleanUrl);
                   if (retryRes.ok) res = retryRes;
                 }
               } catch (fetchErr) {
                 if (proxy !== 'direct') {
-                  const cleanUrl = buildProxiedUrl(proxy!, streamUrl, targetUA, channel.referrer);
+                  const cleanUrl = buildProxiedUrl(proxy!, streamUrl, targetUA, channel.referrer, exp, sig);
                   res = await tryFetch(cleanUrl);
                 } else {
                   throw fetchErr;
@@ -439,10 +455,12 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
               }
               relativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
               const fullOriginalUrl = manifestBase + relativePath;
-              request.uris[0] = buildProxiedUrl(proxyToUse, fullOriginalUrl, targetUA, channel.referrer);
+              const { exp, sig } = streamTokenRef.current;
+              request.uris[0] = buildProxiedUrl(proxyToUse, fullOriginalUrl, targetUA, channel.referrer, exp, sig);
               return;
             }
-            request.uris[0] = buildProxiedUrl(proxyToUse, url, targetUA, channel.referrer);
+            const { exp, sig } = streamTokenRef.current;
+            request.uris[0] = buildProxiedUrl(proxyToUse, url, targetUA, channel.referrer, exp, sig);
           });
         };
 
@@ -483,7 +501,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
             configureShakaProxy(player, proxyUrl);
 
             try {
-              await player.load(proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer) : streamUrl);
+              const { exp, sig } = streamTokenRef.current;
+              await player.load(proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer, exp, sig) : streamUrl);
               if (isMounted) { setIsLoading(false); setIsRefreshing(false); videoRef.current?.play().catch(() => {}); }
             } catch (err) {
               if (isMounted) {
@@ -521,15 +540,18 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
                        relativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
                        const manifestBase = streamUrl.substring(0, streamUrl.lastIndexOf('/') + 1);
                        const fullOriginalUrl = manifestBase + relativePath;
-                       xhr.open('GET', buildProxiedUrl(proxyUrl, fullOriginalUrl, targetUA, channel.referrer), true);
+                       const { exp, sig } = streamTokenRef.current;
+                       xhr.open('GET', buildProxiedUrl(proxyUrl, fullOriginalUrl, targetUA, channel.referrer, exp, sig), true);
                     } else if (url.startsWith('http')) {
-                       xhr.open('GET', buildProxiedUrl(proxyUrl, url, targetUA, channel.referrer), true);
+                       const { exp, sig } = streamTokenRef.current;
+                       xhr.open('GET', buildProxiedUrl(proxyUrl, url, targetUA, channel.referrer, exp, sig), true);
                     }
                   }
                 }
               });
               hlsRef.current = hls;
-              hls.loadSource(proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer) : streamUrl);
+              const { exp, sig } = streamTokenRef.current;
+              hls.loadSource(proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer, exp, sig) : streamUrl);
               hls.attachMedia(videoRef.current);
               
               hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
@@ -573,7 +595,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
                   if ((isAuto || isStrict) && currentProxyIndex < candidates.length) {
                     const nextProxy = candidates[currentProxyIndex];
                     onProxyChange?.(proxyLabelMapRef.current.get(nextProxy) || `Proxy ${currentProxyIndex + 1}`);
-                    hls.loadSource(buildProxiedUrl(nextProxy === 'direct' ? '' : nextProxy, streamUrl, targetUA, channel.referrer));
+                    const { exp, sig } = streamTokenRef.current;
+                    hls.loadSource(buildProxiedUrl(nextProxy === 'direct' ? '' : nextProxy, streamUrl, targetUA, channel.referrer, exp, sig));
                     return;
                   }
                   
@@ -585,7 +608,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
                 }
               });
             } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-              videoRef.current.src = proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer) : streamUrl;
+              const { exp, sig } = streamTokenRef.current;
+              videoRef.current.src = proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer, exp, sig) : streamUrl;
               videoRef.current.addEventListener('loadedmetadata', () => {
                 if (isMounted) { setIsLoading(false); setIsRefreshing(false); videoRef.current?.play().catch(() => {}); }
               });
@@ -619,7 +643,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
           configureShakaProxy(player, proxyUrl);
 
           try {
-            await player.load(proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer) : streamUrl);
+            const { exp, sig } = streamTokenRef.current;
+            await player.load(proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer, exp, sig) : streamUrl);
             if (isMounted) { setIsLoading(false); setIsRefreshing(false); videoRef.current?.play().catch(() => {}); }
           } catch (err) {
             if (proxyUrl && proxyUrl === getStoredProxy(channel.id)) setStoredProxy(channel.id, '');
@@ -634,7 +659,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
                 const finalFallback = fallbackProxy === 'direct' ? '' : fallbackProxy;
                 configureShakaProxy(player, finalFallback);
                 try {
-                  await player.load(finalFallback ? buildProxiedUrl(finalFallback, streamUrl, targetUA, channel.referrer) : streamUrl);
+                  const { exp, sig } = streamTokenRef.current;
+                  await player.load(finalFallback ? buildProxiedUrl(finalFallback, streamUrl, targetUA, channel.referrer, exp, sig) : streamUrl);
                   if (isMounted) { setIsLoading(false); setIsRefreshing(false); onProxyChange?.(proxyLabelMapRef.current.get(fallbackProxy) || `Proxy ${i + 1}`); videoRef.current?.play().catch(() => {}); }
                   dashRecovered = true;
                   break;
@@ -653,7 +679,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
         else if (activeType === 'plain') {
           if (videoRef.current) {
             videoRef.current.controls = true;
-            const finalUrl = proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer) : streamUrl;
+            const { exp, sig } = streamTokenRef.current;
+            const finalUrl = proxyUrl ? buildProxiedUrl(proxyUrl, streamUrl, targetUA, channel.referrer, exp, sig) : streamUrl;
             videoRef.current.src = finalUrl;
             videoRef.current.addEventListener('loadedmetadata', () => {
               if (isMounted) {
