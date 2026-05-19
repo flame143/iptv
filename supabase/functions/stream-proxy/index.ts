@@ -238,6 +238,49 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ─── Token Verification (Security) ───
+    const secretKey = Deno.env.get("SECRET_KEY");
+    if (secretKey) {
+      const exp = params.get("exp");
+      const sig = params.get("sig");
+
+      if (!exp || !sig) {
+        return new Response(JSON.stringify({ error: "Missing authentication token" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (Math.floor(Date.now() / 1000) > Number(exp)) {
+        return new Response(JSON.stringify({ error: "Token expired" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const encoder = new TextEncoder();
+      const keyData = encoder.encode(secretKey);
+      const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+
+      const dataToSign = encoder.encode(`tvstreamz:${exp}`);
+      const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, dataToSign);
+      const hashArray = Array.from(new Uint8Array(signatureBuffer));
+      const expectedSig = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      if (expectedSig !== sig) {
+        return new Response(JSON.stringify({ error: "Invalid token signature" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const upstreamHeaders = buildUpstreamHeaders(req, params);
 
     // ─── HEAD: Metadata check ───

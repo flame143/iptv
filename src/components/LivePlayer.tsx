@@ -234,7 +234,8 @@ const PlayerCore = ({ channel, onProxyChange }: LivePlayerProps) => {
 
         // Fetch stream token for proxy security
         try {
-          const res = await fetch('https://bkcetkqsqxxxockgmqcs.supabase.co/functions/v1/generate-stream-token', {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const res = await fetch(`${supabaseUrl}/functions/v1/generate-stream-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: streamUrl })
