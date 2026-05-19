@@ -69,9 +69,7 @@ $$ LANGUAGE plpgsql SET search_path = public;
 CREATE TRIGGER update_profiles_updated_at
 BEFORE UPDATE ON public.profiles
 FOR EACH ROW
-EXECUTE FUNCTION public.update_updated_at_column();
-
--- --- MIGRATION: 20251227140233_bce1b449-d355-4f54-8b6e-702a714b8540.sql ---
+EXECUTE FUNCTION public.update_updated_at_column();-- --- MIGRATION: 20251227140233_bce1b449-d355-4f54-8b6e-702a714b8540.sql ---
 -- Create watchlist table
 CREATE TABLE public.watchlist (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -105,16 +103,12 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete from their own watchlist"
 ON public.watchlist
 FOR DELETE
-USING (auth.uid() = user_id);
-
--- --- MIGRATION: 20260104004643_66f5c572-3d46-479b-b81e-1c5dc4974e81.sql ---
+USING (auth.uid() = user_id);-- --- MIGRATION: 20260104004643_66f5c572-3d46-479b-b81e-1c5dc4974e81.sql ---
 -- Allow users to delete their own chat messages
 CREATE POLICY "Users can delete their own messages"
 ON public.live_chat_messages
 FOR DELETE
-USING (auth.uid() = user_id);
-
--- --- MIGRATION: 20260104014626_d4b96d59-53a8-46e2-8ec1-569881a7d957.sql ---
+USING (auth.uid() = user_id);-- --- MIGRATION: 20260104014626_d4b96d59-53a8-46e2-8ec1-569881a7d957.sql ---
 -- Drop the existing delete policy that only allows users to delete their own messages
 DROP POLICY IF EXISTS "Users can delete their own messages" ON public.live_chat_messages;
 
@@ -122,9 +116,7 @@ DROP POLICY IF EXISTS "Users can delete their own messages" ON public.live_chat_
 CREATE POLICY "Authenticated users can delete any message" 
 ON public.live_chat_messages 
 FOR DELETE 
-USING (auth.uid() IS NOT NULL);
-
--- --- MIGRATION: 20260104105152_f37d3066-c5f3-4110-b7f6-0f1ac70e77ef.sql ---
+USING (auth.uid() IS NOT NULL);-- --- MIGRATION: 20260104105152_f37d3066-c5f3-4110-b7f6-0f1ac70e77ef.sql ---
 -- Create table for site analytics
 CREATE TABLE public.site_analytics (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -155,9 +147,7 @@ USING (true);
 -- Create index for faster queries
 CREATE INDEX idx_analytics_created_at ON public.site_analytics(created_at);
 CREATE INDEX idx_analytics_page_path ON public.site_analytics(page_path);
-CREATE INDEX idx_analytics_content ON public.site_analytics(content_id, content_type);
-
--- --- MIGRATION: 20260104110929_c36cdeb4-7c80-4199-9bd1-fde609050b7a.sql ---
+CREATE INDEX idx_analytics_content ON public.site_analytics(content_id, content_type);-- --- MIGRATION: 20260104110929_c36cdeb4-7c80-4199-9bd1-fde609050b7a.sql ---
 -- Create role enum
 CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user');
 
@@ -203,9 +193,7 @@ USING (public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "Admins can manage roles"
 ON public.user_roles
 FOR ALL
-USING (public.has_role(auth.uid(), 'admin'));
-
--- --- MIGRATION: 20260121120439_f97869cc-7f1b-4621-8d58-3a27fa3548f8.sql ---
+USING (public.has_role(auth.uid(), 'admin'));-- --- MIGRATION: 20260121120439_f97869cc-7f1b-4621-8d58-3a27fa3548f8.sql ---
 -- Create channels table for Live TV management
 CREATE TABLE public.channels (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -259,9 +247,7 @@ USING (public.has_role(auth.uid(), 'admin'));
 CREATE TRIGGER update_channels_updated_at
 BEFORE UPDATE ON public.channels
 FOR EACH ROW
-EXECUTE FUNCTION public.update_updated_at_column();
-
--- --- MIGRATION: 20260123133414_c73cec5e-4350-4b67-b4e7-900018f38ce3.sql ---
+EXECUTE FUNCTION public.update_updated_at_column();-- --- MIGRATION: 20260123133414_c73cec5e-4350-4b67-b4e7-900018f38ce3.sql ---
 -- Create site_settings table for customizable content
 CREATE TABLE public.site_settings (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -311,9 +297,7 @@ VALUES ('welcome_popup', '{
   "message": "Stream your favorite movies, TV shows, anime, and live TV channels for free. Enjoy unlimited entertainment anytime, anywhere!",
   "button_text": "Start Watching 🍿",
   "tags": ["Movies", "TV Shows", "Anime", "Live TV"]
-}'::jsonb);
-
--- --- MIGRATION: 20260126013259_a958f882-4266-4ed9-bb57-f40539007e4c.sql ---
+}'::jsonb);-- --- MIGRATION: 20260126013259_a958f882-4266-4ed9-bb57-f40539007e4c.sql ---
 -- Insert default PopAds settings
 INSERT INTO public.site_settings (key, value)
 VALUES ('popads_settings', '{
@@ -325,9 +309,7 @@ VALUES ('popads_settings', '{
   "defaultPerDay": 0,
   "topmostLayer": "auto"
 }'::jsonb)
-ON CONFLICT (key) DO NOTHING;
-
--- --- MIGRATION: 20260201100328_2778e577-05db-427d-8147-7e135a149578.sql ---
+ON CONFLICT (key) DO NOTHING;-- --- MIGRATION: 20260201100328_2778e577-05db-427d-8147-7e135a149578.sql ---
 -- Add Widevine DRM support columns to channels table
 ALTER TABLE public.channels 
 ADD COLUMN IF NOT EXISTS license_type text DEFAULT NULL,
@@ -335,9 +317,7 @@ ADD COLUMN IF NOT EXISTS license_url text DEFAULT NULL;
 
 -- Add comment for documentation
 COMMENT ON COLUMN public.channels.license_type IS 'DRM license type: clearkey, widevine, or null for no DRM';
-COMMENT ON COLUMN public.channels.license_url IS 'License server URL for Widevine DRM';
-
--- --- MIGRATION: 20260202092542_724afced-82bd-434c-b553-8e4f03bdb8b5.sql ---
+COMMENT ON COLUMN public.channels.license_url IS 'License server URL for Widevine DRM';-- --- MIGRATION: 20260202092542_724afced-82bd-434c-b553-8e4f03bdb8b5.sql ---
 -- Create a function to get daily analytics stats (aggregated)
 CREATE OR REPLACE FUNCTION get_daily_analytics_stats(days_back integer DEFAULT 30)
 RETURNS TABLE (
@@ -357,18 +337,10 @@ AS $$
   WHERE created_at >= NOW() - (days_back || ' days')::interval
   GROUP BY DATE(created_at)
   ORDER BY stat_date ASC;
-$$;
-
--- --- MIGRATION: 20260219034519_f93cfcdf-1bf9-436c-bc95-b778659450cc.sql ---
-ALTER TABLE public.channels ADD COLUMN user_agent TEXT DEFAULT NULL;
-
--- --- MIGRATION: 20260219134837_ec2e79ca-4e29-4a0a-9a33-8e725062b211.sql ---
-ALTER TABLE public.channels ADD COLUMN use_proxy boolean NOT NULL DEFAULT false;
-
--- --- MIGRATION: 20260220000404_a4c926a1-2369-4143-a272-8bf3fdec40cd.sql ---
-ALTER TABLE public.channels ADD COLUMN referrer text DEFAULT NULL;
-
--- --- MIGRATION: 20260227233733_fc3e07b6-b4f7-4ee4-8db0-d06018c99500.sql ---
+$$;-- --- MIGRATION: 20260219034519_f93cfcdf-1bf9-436c-bc95-b778659450cc.sql ---
+ALTER TABLE public.channels ADD COLUMN user_agent TEXT DEFAULT NULL;-- --- MIGRATION: 20260219134837_ec2e79ca-4e29-4a0a-9a33-8e725062b211.sql ---
+ALTER TABLE public.channels ADD COLUMN use_proxy boolean NOT NULL DEFAULT false;-- --- MIGRATION: 20260220000404_a4c926a1-2369-4143-a272-8bf3fdec40cd.sql ---
+ALTER TABLE public.channels ADD COLUMN referrer text DEFAULT NULL;-- --- MIGRATION: 20260227233733_fc3e07b6-b4f7-4ee4-8db0-d06018c99500.sql ---
 -- Fix overly permissive site_analytics INSERT policy
 -- Replace WITH CHECK (true) with basic input validation
 DROP POLICY IF EXISTS "Anyone can insert analytics" ON public.site_analytics;
@@ -383,12 +355,8 @@ WITH CHECK (
   AND (content_id IS NULL OR length(content_id) <= 200)
   AND (content_type IS NULL OR length(content_type) <= 50)
   AND (content_title IS NULL OR length(content_title) <= 500)
-);
-
--- --- MIGRATION: 20260306003724_f6788fb4-6215-47da-9fb7-5ed794f7ae6f.sql ---
-ALTER TABLE public.channels ADD COLUMN proxy_order jsonb DEFAULT NULL;
-
--- --- MIGRATION: 20260309041526_209bc1bb-4334-48d3-b0fb-490680357d7b.sql ---
+);-- --- MIGRATION: 20260306003724_f6788fb4-6215-47da-9fb7-5ed794f7ae6f.sql ---
+ALTER TABLE public.channels ADD COLUMN proxy_order jsonb DEFAULT NULL;-- --- MIGRATION: 20260309041526_209bc1bb-4334-48d3-b0fb-490680357d7b.sql ---
 
 CREATE TABLE public.tvapp_cache (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -398,18 +366,12 @@ CREATE TABLE public.tvapp_cache (
 );
 
 ALTER TABLE public.tvapp_cache DISABLE ROW LEVEL SECURITY;
-
-
 -- --- MIGRATION: 20260309052136_9993a654-5353-443f-a49b-dbc984b4a0be.sql ---
-UPDATE channels SET use_proxy = true, proxy_order = '["primary","backup","backup2","backup3","backup4"]'::jsonb WHERE id = '3cf4c259-2931-4ee5-92dc-4939099bbf2b';
-
--- --- MIGRATION: 20260312015623_d1aa741b-7d56-4370-b54f-7b0256b63604.sql ---
+UPDATE channels SET use_proxy = true, proxy_order = '["primary","backup","backup2","backup3","backup4"]'::jsonb WHERE id = '3cf4c259-2931-4ee5-92dc-4939099bbf2b';-- --- MIGRATION: 20260312015623_d1aa741b-7d56-4370-b54f-7b0256b63604.sql ---
 UPDATE channels 
 SET stream_url = 'https://wmjebiejrjgfafsniqlx.supabase.co/functions/v1/stream-proxy?url=http://trilo.tv/live/Eden1/123456789/368076.m3u8',
     updated_at = now()
-WHERE id = '3cf4c259-2931-4ee5-92dc-4939099bbf2b';
-
--- --- MIGRATION: 20260313101429_8ae13f6c-b024-4270-9c0b-7857654b486c.sql ---
+WHERE id = '3cf4c259-2931-4ee5-92dc-4939099bbf2b';-- --- MIGRATION: 20260313101429_8ae13f6c-b024-4270-9c0b-7857654b486c.sql ---
 
 CREATE TABLE public.notifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -439,16 +401,10 @@ CREATE POLICY "Admins can delete notifications"
   ON public.notifications FOR DELETE
   TO public
   USING (has_role(auth.uid(), 'admin'::app_role));
-
-
 -- --- MIGRATION: 20260316000439_0f1b8dfe-0407-449b-aa41-378223c215ee.sql ---
-ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS proxy_type text NOT NULL DEFAULT 'none';
-
--- --- MIGRATION: 20260407105740_add_status_to_channels.sql ---
+ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS proxy_type text NOT NULL DEFAULT 'none';-- --- MIGRATION: 20260407105740_add_status_to_channels.sql ---
 ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'online';
 COMMENT ON COLUMN public.channels.status IS 'Current status of the channel: online or offline';
-
-
 -- --- MIGRATION: 20260414011800_fix_favorites_persistence.sql ---
 -- Fix content_id type to support strings (for channel UUIDs) and update content_type constraint
 -- We use DO blocks to safely handle tables that might or might not have these specific constraints
@@ -477,8 +433,6 @@ BEGIN
             CHECK (content_type IN ('movie', 'tv', 'channel'));
     END IF;
 END $$;
-
-
 -- --- MIGRATION: 20260512191500_create_missing_sync_tables.sql ---
 -- Create community_messages table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.community_messages (
@@ -647,8 +601,6 @@ END $$;
 
 -- Enable Realtime publication for community_messages so chats load instantly without refreshing
 alter publication supabase_realtime add table community_messages;
-
-
 -- --- MIGRATION: 20260513011000_add_epg_columns_to_channels.sql ---
 -- Add EPG and channel number columns to public.channels table
 ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS epg_id TEXT DEFAULT NULL;
@@ -659,7 +611,10 @@ ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS epg_url TEXT DEFAULT NULL;
 COMMENT ON COLUMN public.channels.epg_id IS 'EPG ID / Name used to map channel to electronic program guide data';
 COMMENT ON COLUMN public.channels.channel_num IS 'Logical channel number displayed in the client UI';
 COMMENT ON COLUMN public.channels.epg_url IS 'External XMLTV EPG URL for manual channel listings';
-
+-- --- MANUALLY ADD MISSING COLUMNS IN PUBLIC.CHANNELS ---
+ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS tvapp_slug text DEFAULT NULL;
+ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS offline_title text DEFAULT NULL;
+ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS offline_message text DEFAULT NULL;
 
 -- -----------------------------------------------------
 -- --- INSERT CHANNELS DATA FROM CSV ---

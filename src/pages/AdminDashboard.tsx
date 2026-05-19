@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Eye, Users, TrendingUp, Calendar, Film, Tv, MessageSquare, ExternalLink, Wifi, Bell, Mail, LayoutGrid, ChevronLeft, Rocket, Globe, RefreshCw } from "lucide-react";
@@ -181,9 +182,10 @@ export default function AdminDashboard() {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <Navbar />
-      <div className="container mx-auto px-4 pt-28 pb-12">
+      <ScrollArea className="flex-1 pt-16">
+        <div className="container mx-auto px-4 pt-8 pb-12">
         
         {/* Dynamic Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-12 max-w-4xl mx-auto">
@@ -335,7 +337,8 @@ export default function AdminDashboard() {
             )}
           </div>
         )}
-      </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 }

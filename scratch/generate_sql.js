@@ -88,8 +88,13 @@ async function run() {
       const content = fs.readFileSync(filePath, 'utf-8');
       sqlContent += `-- --- MIGRATION: ${file} ---\n`;
       sqlContent += content;
-      sqlContent += '\n\n';
     }
+    
+    // Add missing columns that are in types.ts and CSV but missing from migration files
+    sqlContent += `-- --- MANUALLY ADD MISSING COLUMNS IN PUBLIC.CHANNELS ---\n`;
+    sqlContent += `ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS tvapp_slug text DEFAULT NULL;\n`;
+    sqlContent += `ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS offline_title text DEFAULT NULL;\n`;
+    sqlContent += `ALTER TABLE public.channels ADD COLUMN IF NOT EXISTS offline_message text DEFAULT NULL;\n\n`;
     
     // Read and parse CSV
     console.log(`Reading CSV: ${csvPath}`);
